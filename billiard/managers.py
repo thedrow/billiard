@@ -38,6 +38,8 @@ from .util import Finalize, error, info
 
 def reduce_array(a):
     return array.array, (a.typecode, a.tostring())
+
+
 ForkingPickler.register(array.array, reduce_array)
 
 view_types = [type(getattr({}, name)())
@@ -46,6 +48,7 @@ if view_types[0] is not list:  # only needed in Py3.0
 
     def rebuild_as_list(obj):
         return list, (list(obj), )
+
     for view_type in view_types:
         ForkingPickler.register(view_type, rebuild_as_list)
         try:
@@ -79,6 +82,7 @@ class Token(object):
         return 'Token(typeid=%r, address=%r, id=%r)' % \
                (self.typeid, self.address, self.id)
 
+
 #
 # Function for communication with a manager's server process
 #
@@ -109,9 +113,9 @@ def convert_to_error(kind, result):
 
 
 class RemoteError(Exception):
-
     def __str__(self):
         return ('\n' + '-' * 75 + '\n' + str(self.args[0]) + '-' * 75)
+
 
 #
 # Functions for finding the method names of an object
@@ -135,6 +139,7 @@ def public_methods(obj):
     Return a list of names of methods of `obj` which do not start with '_'
     '''
     return [name for name in all_methods(obj) if name[0] != '_']
+
 
 #
 # Server which is run in a process controlled by a manager
@@ -329,7 +334,7 @@ class Server(object):
         '''
         Number of shared objects
         '''
-        return len(self.id_to_obj) - 1      # don't count ident='0'
+        return len(self.id_to_obj) - 1  # don't count ident='0'
 
     def shutdown(self, c):
         '''
@@ -360,6 +365,7 @@ class Server(object):
             except:
                 if not error("Error while manager shutdown", exc_info=True):
                     import traceback
+
                     traceback.print_exc()
         finally:
             exit(0)
@@ -425,6 +431,7 @@ class Server(object):
                 del self.id_to_obj[ident], self.id_to_refcount[ident]
                 util.debug('disposing of obj with id %r', ident)
 
+
 #
 # Class to represent state of a manager
 #
@@ -460,7 +467,7 @@ class BaseManager(object):
     def __init__(self, address=None, authkey=None, serializer='pickle'):
         if authkey is None:
             authkey = current_process().authkey
-        self._address = address     # XXX not final address if eg ('', 0)
+        self._address = address  # XXX not final address if eg ('', 0)
         self._authkey = AuthenticationString(authkey)
         self._state = State()
         self._state.value = State.INITIAL
@@ -662,8 +669,10 @@ class BaseManager(object):
                 conn = self._Client(token.address, authkey=self._authkey)
                 dispatch(conn, None, 'decref', (token.id,))
                 return proxy
+
             temp.__name__ = typeid
             setattr(cls, typeid, temp)
+
 
 #
 # Subclass of set which get cleared after a fork
@@ -671,12 +680,12 @@ class BaseManager(object):
 
 
 class ProcessLocalSet(set):
-
     def __init__(self):
         util.register_after_fork(self, lambda obj: obj.clear())
 
     def __reduce__(self):
         return type(self), ()
+
 
 #
 # Definition of BaseProxy
@@ -850,6 +859,7 @@ class BaseProxy(object):
         except Exception:
             return repr(self)[:-1] + "; '__str__()' failed>"
 
+
 #
 # Function used for unpickling
 #
@@ -872,6 +882,7 @@ def RebuildProxy(func, token, serializer, kwds):
         )
         return func(token, serializer, incref=incref, **kwds)
 
+
 #
 # Functions to create proxies and proxy types
 #
@@ -890,7 +901,7 @@ def MakeProxyType(name, exposed, _cache={}):
     dic = {}
 
     for meth in exposed:
-        exec('''def %s(self, *args, **kwds):
+        exec ('''def %s(self, *args, **kwds):
         return self._callmethod(%r, args, kwds)''' % (meth, meth), dic)
 
     ProxyType = type(name, (BaseProxy,), dic)
@@ -924,13 +935,13 @@ def AutoProxy(token, serializer, manager=None, authkey=None,
     proxy._isauto = True
     return proxy
 
+
 #
 # Types/callables which we will register with SyncManager
 #
 
 
 class Namespace(object):
-
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 
@@ -945,7 +956,6 @@ class Namespace(object):
 
 
 class Value(object):
-
     def __init__(self, typecode, value, lock=True):
         self._typecode = typecode
         self._value = value
@@ -959,11 +969,13 @@ class Value(object):
     def __repr__(self):
         return '%s(%r, %r)' % (type(self).__name__,
                                self._typecode, self._value)
+
     value = property(get, set)
 
 
 def Array(typecode, sequence, lock=True):
     return array.array(typecode, sequence)
+
 
 #
 # Proxy types used by SyncManager
@@ -1088,6 +1100,7 @@ class ValueProxy(BaseProxy):
 
     def set(self, value):
         return self._callmethod('set', (value,))
+
     value = property(get, set)
 
 
@@ -1101,7 +1114,6 @@ BaseListProxy = MakeProxyType('BaseListProxy', (
 
 
 class ListProxy(BaseListProxy):
-
     def __iadd__(self, value):
         self._callmethod('extend', (value,))
         return self
@@ -1117,11 +1129,9 @@ DictProxy = MakeProxyType('DictProxy', (
     'keys', 'pop', 'popitem', 'setdefault', 'update', 'values',
 ))
 
-
 ArrayProxy = MakeProxyType('ArrayProxy', (
     '__len__', '__getitem__', '__setitem__', '__getslice__', '__setslice__',
 ))  # XXX __getslice__ and __setslice__ unneeded in Py3.0
-
 
 PoolProxy = MakeProxyType('PoolProxy', (
     'apply', 'apply_async', 'close', 'imap', 'imap_unordered', 'join',
@@ -1150,6 +1160,7 @@ class SyncManager(BaseManager):
     The `billiard.Manager()` function creates started instances of
     this class.
     '''
+
 
 SyncManager.register('Queue', Queue)
 SyncManager.register('JoinableQueue', Queue)

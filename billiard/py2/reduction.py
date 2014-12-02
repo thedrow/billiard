@@ -27,7 +27,7 @@ is_win32 = sys.platform == 'win32'
 is_pypy = hasattr(sys, 'pypy_version_info')
 is_py3k = sys.version_info[0] == 3
 
-if not(is_win32 or is_pypy or is_py3k or hasattr(_billiard, 'recvfd')):
+if not (is_win32 or is_pypy or is_py3k or hasattr(_billiard, 'recvfd')):
     raise ImportError('pickling of connections not supported')
 
 close = win32.CloseHandle if sys.platform == 'win32' else os.close
@@ -50,6 +50,7 @@ class ForkingPickler(Pickler):  # noqa
         def dispatcher(self, obj):
             rv = reduce(obj)
             self.save_reduce(obj=obj, *rv)
+
         cls.dispatch[type] = dispatcher
 
 
@@ -58,11 +59,15 @@ def _reduce_method(m):  # noqa
         return getattr, (m.__self__.__class__, m.__func__.__name__)
     else:
         return getattr, (m.__self__, m.__func__.__name__)
+
+
 ForkingPickler.register(type(ForkingPickler.save), _reduce_method)
 
 
 def _reduce_method_descriptor(m):
     return getattr, (m.__objclass__, m.__name__)
+
+
 ForkingPickler.register(type(list.append), _reduce_method_descriptor)
 ForkingPickler.register(type(int.__add__), _reduce_method_descriptor)
 
@@ -77,6 +82,7 @@ else:
 
     def _rebuild_partial(func, args, keywords):
         return partial(func, *args, **keywords)
+
     ForkingPickler.register(partial, _reduce_partial)
 
 
@@ -93,6 +99,7 @@ if sys.platform == 'win32':
 
     def send_handle(conn, handle, destination_pid):
         from ..forking import duplicate
+
         process_handle = win32.OpenProcess(
             win32.PROCESS_ALL_ACCESS, False, destination_pid
         )
@@ -125,6 +132,7 @@ def _reset(obj):
     _lock = threading.Lock()
     _listener = None
 
+
 _reset(None)
 register_after_fork(_reset, _reset)
 
@@ -137,6 +145,7 @@ def _get_listener():
         try:
             if _listener is None:
                 from ..connection import Listener
+
                 debug('starting listener and thread for sending handles')
                 _listener = Listener(authkey=current_process().authkey)
                 t = threading.Thread(target=_serve)
@@ -164,6 +173,7 @@ def _serve():
                 sub_warning('thread for sharing handles raised exception',
                             exc_info=True)
 
+
 #
 # Functions to be used for pickling/unpickling objects with handles
 #
@@ -171,6 +181,7 @@ def _serve():
 
 def reduce_handle(handle):
     from ..forking import Popen, duplicate
+
     if Popen.thread_is_spawning():
         return (None, Popen.duplicate_for_child(handle), True)
     dup_handle = duplicate(handle)
@@ -181,6 +192,7 @@ def reduce_handle(handle):
 
 def rebuild_handle(pickled_data):
     from ..connection import Client
+
     address, handle, inherited = pickled_data
     if inherited:
         return handle
@@ -190,6 +202,7 @@ def rebuild_handle(pickled_data):
     new_handle = recv_handle(conn)
     conn.close()
     return new_handle
+
 
 #
 # Register `_billiard.Connection` with `ForkingPickler`
@@ -206,6 +219,7 @@ def rebuild_connection(reduced_handle, readable, writable):
     return _billiard.Connection(
         handle, readable=readable, writable=writable
     )
+
 
 # Register `socket.socket` with `ForkingPickler`
 #
@@ -229,6 +243,7 @@ def rebuild_socket(reduced_handle, family, type_, proto):
     close(fd)
     return _sock
 
+
 ForkingPickler.register(socket.socket, reduce_socket)
 
 #
@@ -236,7 +251,6 @@ ForkingPickler.register(socket.socket, reduce_socket)
 #
 
 if sys.platform == 'win32':
-
     def reduce_pipe_connection(conn):
         rh = reduce_handle(conn.fileno())
         return rebuild_pipe_connection, (rh, conn.readable, conn.writable)

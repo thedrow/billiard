@@ -61,6 +61,7 @@ from .exceptions import (  # noqa
 
 def ensure_multiprocessing():
     from ._ext import ensure_multiprocessing
+
     return ensure_multiprocessing()
 
 
@@ -75,16 +76,19 @@ is not installed\
 
 def Process(*args, **kwargs):
     from .process import Process
+
     return Process(*args, **kwargs)
 
 
 def current_process():
     from .process import current_process
+
     return current_process()
 
 
 def active_children():
     from .process import active_children
+
     return active_children()
 
 
@@ -96,6 +100,7 @@ def Manager():
     can be used to create shared objects.
     '''
     from .managers import SyncManager
+
     m = SyncManager()
     m.start()
     return m
@@ -106,6 +111,7 @@ def Pipe(duplex=True, rnonblock=False, wnonblock=False):
     Returns two connection object connected by a pipe
     '''
     from billiard.connection import Pipe
+
     return Pipe(duplex, rnonblock, wnonblock)
 
 
@@ -146,6 +152,7 @@ def freeze_support():
     '''
     if sys.platform == 'win32' and getattr(sys, 'frozen', False):
         from .forking import freeze_support
+
         freeze_support()
 
 
@@ -154,6 +161,7 @@ def get_logger():
     Return package logger -- if it does not already exist then it is created
     '''
     from .util import get_logger
+
     return get_logger()
 
 
@@ -162,6 +170,7 @@ def log_to_stderr(level=None):
     Turn on logging and add a handler which prints to stderr
     '''
     from .util import log_to_stderr
+
     return log_to_stderr(level)
 
 
@@ -170,6 +179,7 @@ def allow_connection_pickling():
     Install support for sending connections and sockets between processes
     '''
     from . import reduction  # noqa
+
 
 #
 # Definitions depending on native semaphores
@@ -181,6 +191,7 @@ def Lock():
     Returns a non-recursive lock object
     '''
     from .synchronize import Lock
+
     return Lock()
 
 
@@ -189,6 +200,7 @@ def RLock():
     Returns a recursive lock object
     '''
     from .synchronize import RLock
+
     return RLock()
 
 
@@ -197,6 +209,7 @@ def Condition(lock=None):
     Returns a condition object
     '''
     from .synchronize import Condition
+
     return Condition(lock)
 
 
@@ -205,6 +218,7 @@ def Semaphore(value=1):
     Returns a semaphore object
     '''
     from .synchronize import Semaphore
+
     return Semaphore(value)
 
 
@@ -213,6 +227,7 @@ def BoundedSemaphore(value=1):
     Returns a bounded semaphore object
     '''
     from .synchronize import BoundedSemaphore
+
     return BoundedSemaphore(value)
 
 
@@ -221,6 +236,7 @@ def Event():
     Returns an event object
     '''
     from .synchronize import Event
+
     return Event()
 
 
@@ -229,6 +245,7 @@ def Queue(maxsize=0):
     Returns a queue object
     '''
     from .queues import Queue
+
     return Queue(maxsize)
 
 
@@ -237,6 +254,7 @@ def JoinableQueue(maxsize=0):
     Returns a queue object
     '''
     from .queues import JoinableQueue
+
     return JoinableQueue(maxsize)
 
 
@@ -249,6 +267,7 @@ def Pool(processes=None, initializer=None, initargs=(), maxtasksperchild=None,
     Returns a process pool object
     '''
     from .pool import Pool
+
     return Pool(processes, initializer, initargs, maxtasksperchild,
                 timeout, soft_timeout, lost_worker_timeout,
                 max_restarts, max_restart_freq, on_process_up,
@@ -261,6 +280,7 @@ def RawValue(typecode_or_type, *args):
     Returns a shared object
     '''
     from .sharedctypes import RawValue
+
     return RawValue(typecode_or_type, *args)
 
 
@@ -269,6 +289,7 @@ def RawArray(typecode_or_type, size_or_initializer):
     Returns a shared array
     '''
     from .sharedctypes import RawArray
+
     return RawArray(typecode_or_type, size_or_initializer)
 
 
@@ -277,6 +298,7 @@ def Value(typecode_or_type, *args, **kwds):
     Returns a synchronized shared object
     '''
     from .sharedctypes import Value
+
     return Value(typecode_or_type, *args, **kwds)
 
 
@@ -285,7 +307,9 @@ def Array(typecode_or_type, size_or_initializer, **kwds):
     Returns a synchronized shared array
     '''
     from .sharedctypes import Array
+
     return Array(typecode_or_type, size_or_initializer, **kwds)
+
 
 #
 #
@@ -299,6 +323,7 @@ def set_executable(executable):
     Useful for people embedding Python.
     '''
     from .forking import set_executable
+
     set_executable(executable)
 
 
@@ -312,6 +337,7 @@ def forking_is_enabled():
     default.
     '''
     from . import forking
+
     return forking._forking_is_enabled
 
 
@@ -326,8 +352,10 @@ def forking_enable(value):
     '''
     if not value:
         from ._ext import supports_exec
+
         if supports_exec:
             from . import forking
+
             if value and not hasattr(os, 'fork'):
                 raise ValueError('os.fork() not found')
             forking._forking_is_enabled = bool(value)
@@ -335,5 +363,7 @@ def forking_enable(value):
                 os.environ["MULTIPROCESSING_FORKING_DISABLE"] = "1"
         else:
             warnings.warn(RuntimeWarning(W_NO_EXECV))
+
+
 if os.environ.get("MULTIPROCESSING_FORKING_DISABLE"):
     forking_enable(False)

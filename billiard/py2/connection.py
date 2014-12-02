@@ -72,6 +72,7 @@ def _init_timeout(timeout=CONNECTION_TIMEOUT):
 def _check_timeout(t):
     return monotonic() > t
 
+
 #
 #
 #
@@ -112,6 +113,7 @@ def address_type(address):
     else:
         raise ValueError('address type of %r unrecognized' % address)
 
+
 #
 # Public functions
 #
@@ -124,6 +126,7 @@ class Listener(object):
     This is a wrapper for a bound socket which is 'listening' for
     connections, or for a Windows named pipe.
     '''
+
     def __init__(self, address=None, family=None, backlog=1, authkey=None):
         family = (family or
                   (address and address_type(address)) or
@@ -266,6 +269,7 @@ class SocketListener(object):
     '''
     Representation of a socket which is bound to an address and listening
     '''
+
     def __init__(self, address, family, backlog=1):
         self._socket = socket.socket(getattr(socket, family))
         try:
@@ -338,6 +342,7 @@ if sys.platform == 'win32':
         '''
         Representation of a named pipe
         '''
+
         def __init__(self, address, backlog=None):
             self._address = address
             handle = win32.CreateNamedPipe(
@@ -420,11 +425,12 @@ FAILURE = cbytes('#FAILURE#', 'ascii')
 
 def deliver_challenge(connection, authkey):
     import hmac
+
     assert isinstance(authkey, bytes)
     message = os.urandom(MESSAGE_LENGTH)
     connection.send_bytes(CHALLENGE + message)
     digest = hmac.new(authkey, message).digest()
-    response = connection.recv_bytes(256)        # reject large message
+    response = connection.recv_bytes(256)  # reject large message
     if response == digest:
         connection.send_bytes(WELCOME)
     else:
@@ -434,15 +440,17 @@ def deliver_challenge(connection, authkey):
 
 def answer_challenge(connection, authkey):
     import hmac
+
     assert isinstance(authkey, bytes)
-    message = connection.recv_bytes(256)         # reject large message
+    message = connection.recv_bytes(256)  # reject large message
     assert message[:len(CHALLENGE)] == CHALLENGE, 'message = %r' % message
     message = message[len(CHALLENGE):]
     digest = hmac.new(authkey, message).digest()
     connection.send_bytes(digest)
-    response = connection.recv_bytes(256)        # reject large message
+    response = connection.recv_bytes(256)  # reject large message
     if response != WELCOME:
         raise AuthenticationError('digest sent was rejected')
+
 
 #
 # Support for using xmlrpclib for serialization
@@ -480,6 +488,7 @@ class XmlListener(Listener):
     def accept(self):
         global xmlrpclib
         import xmlrpclib  # noqa
+
         obj = Listener.accept(self)
         return ConnectionWrapper(obj, _xml_dumps, _xml_loads)
 
@@ -487,6 +496,7 @@ class XmlListener(Listener):
 def XmlClient(*args, **kwds):
     global xmlrpclib
     import xmlrpclib  # noqa
+
     return ConnectionWrapper(Client(*args, **kwds), _xml_dumps, _xml_loads)
 
 

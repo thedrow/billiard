@@ -5,7 +5,6 @@ import traceback
 
 
 class _Code(object):
-
     def __init__(self, code):
         self.co_filename = code.co_filename
         self.co_name = code.co_name
@@ -30,13 +29,11 @@ class _Frame(object):
 
 
 class _Object(object):
-
     def __init__(self, **kw):
         [setattr(self, k, v) for k, v in kw.items()]
 
 
 class _Truncated(object):
-
     def __init__(self):
         self.tb_lineno = -1
         self.tb_frame = _Object(
@@ -75,7 +72,7 @@ class ExceptionInfo(object):
 
     """
 
-    #: Exception type.
+    # : Exception type.
     type = None
 
     #: Exception instance.
@@ -99,7 +96,7 @@ class ExceptionInfo(object):
             )
             self.internal = internal
         finally:
-            del(tb)
+            del (tb)
 
     def __str__(self):
         return self.traceback

@@ -4,7 +4,6 @@ import sys
 
 
 class WarningMessage(object):
-
     """Holds the result of a single showwarning() call."""
 
     _WARNING_DETAILS = ('message', 'category', 'filename', 'lineno', 'file',
@@ -25,7 +24,6 @@ class WarningMessage(object):
 
 
 class catch_warnings(object):
-
     """A context manager that copies and restores the warnings filter upon
     exiting the context.
 

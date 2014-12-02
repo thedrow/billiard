@@ -13,13 +13,14 @@ import os
 import sys
 import signal
 import warnings
-
 from pickle import load, HIGHEST_PROTOCOL
+
 from billiard import util
 from billiard import process
 from billiard.five import int_types
 from .reduction import dump
 from .compat import _winapi as win32
+
 
 __all__ = ['Popen', 'assert_spawning', 'exit',
            'duplicate', 'close']
@@ -88,6 +89,7 @@ if sys.platform != 'win32':
         def __init__(self, process_obj):
             # register reducers
             from billiard import connection  # noqa
+
             _Django_old_layout_hack__save()
             sys.stdout.flush()
             sys.stderr.flush()
@@ -101,6 +103,7 @@ if sys.platform != 'win32':
                     os.close(r)
                     if 'random' in sys.modules:
                         import random
+
                         random.seed()
                     code = process_obj._bootstrap()
                     os._exit(code)
@@ -123,7 +126,7 @@ if sys.platform != 'win32':
                     dump(prep_data, to_child, HIGHEST_PROTOCOL)
                     dump(process_obj, to_child, HIGHEST_PROTOCOL)
                 finally:
-                    del(Popen._tls.process_handle)
+                    del (Popen._tls.process_handle)
                     to_child.close()
 
             # `w` will be closed when the child exits, at which point `r`
@@ -186,6 +189,7 @@ else:
     except ImportError:
         import _thread as thread  # noqa
     import msvcrt
+
     try:
         import _subprocess
     except ImportError:
@@ -214,7 +218,7 @@ else:
             0, inheritable, _subprocess.DUPLICATE_SAME_ACCESS
         )
         if sys.version_info[0] < 3 or (
-                sys.version_info[0] == 3 and sys.version_info[1] < 3):
+                        sys.version_info[0] == 3 and sys.version_info[1] < 3):
             h = h.Detach()
         return h
 
@@ -300,9 +304,9 @@ else:
                     if self.wait(timeout=0.1) is None:
                         raise
 
-    #
-    #
-    #
+                        #
+                        #
+                        #
 
 if WINSERVICE:
     _python_exe = os.path.join(sys.exec_prefix, 'python.exe')
@@ -441,6 +445,7 @@ def main():
     if loglevel:
         from billiard import util
         import logging
+
         logger = util.get_logger()
         logger.setLevel(int(loglevel))
         if not logger.handlers:
@@ -489,7 +494,7 @@ def get_preparation_data(name):
             main_path = sys.argv[0]
         if main_path is not None:
             if (not os.path.isabs(main_path) and
-                    process.ORIGINAL_DIR is not None):
+                        process.ORIGINAL_DIR is not None):
                 main_path = os.path.join(process.ORIGINAL_DIR, main_path)
             d['main_path'] = os.path.normpath(main_path)
 

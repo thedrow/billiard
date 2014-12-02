@@ -10,7 +10,7 @@
 # Licensed to PSF under a Contributor Agreement.
 #
 
-__all__ = [ 'Client', 'Listener', 'Pipe' ]
+__all__ = ['Client', 'Listener', 'Pipe']
 
 from queue import Queue
 
@@ -19,7 +19,6 @@ families = [None]
 
 
 class Listener(object):
-
     def __init__(self, address=None, family=None, backlog=1):
         self._backlog_queue = Queue(backlog)
 
@@ -50,7 +49,6 @@ def Pipe(duplex=True):
 
 
 class Connection(object):
-
     def __init__(self, _in, _out):
         self._out = _out
         self._in = _in

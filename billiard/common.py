@@ -13,6 +13,7 @@ import dill
 from .exceptions import RestartFreqExceeded
 from .five import monotonic
 
+
 pickle = dill
 pickle_load = pickle.load
 pickle_loads = pickle.loads
@@ -55,7 +56,7 @@ TERMSIGS_FULL = (
     'SIGUSR2',
 )
 
-#: set by signal handlers just before calling exit.
+# : set by signal handlers just before calling exit.
 #: if this is true after the sighandler returns it means that something
 #: went wrong while terminating the process, and :func:`os._exit`
 #: must be called ASAP.

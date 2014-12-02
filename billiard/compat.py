@@ -6,17 +6,17 @@ import sys
 
 from .five import range
 
+
 if sys.platform == 'win32':
     try:
         import _winapi  # noqa
-    except ImportError:                            # pragma: no cover
+    except ImportError:  # pragma: no cover
         try:
             from _billiard import win32 as _winapi  # noqa
         except (ImportError, AttributeError):
             from _multiprocessing import win32 as _winapi  # noqa
 else:
     _winapi = None  # noqa
-
 
 if sys.version_info > (2, 7, 5):
     buf_t, is_new_buffer = memoryview, True  # noqa
@@ -40,7 +40,6 @@ else:  # non-posix platform
 
     def send_offset(fd, buf, offset):  # noqa
         raise NotImplementedError('send_offset')
-
 
 if sys.version_info[0] == 3:
     bytes = bytes

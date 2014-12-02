@@ -8,7 +8,6 @@
 #
 from __future__ import absolute_import
 
-import copyreg
 import functools
 import io
 import os
@@ -16,8 +15,10 @@ import pickle
 import socket
 import sys
 
-__all__ = ['send_handle', 'recv_handle', 'ForkingPickler', 'register', 'dump']
+import copyreg
 
+
+__all__ = ['send_handle', 'recv_handle', 'ForkingPickler', 'register', 'dump']
 
 HAVE_SEND_HANDLE = (sys.platform == 'win32' or
                     (hasattr(socket, 'CMSG_LEN') and
@@ -51,6 +52,7 @@ class ForkingPickler(pickle.Pickler):
         return buf.getbuffer()
 
     loads = pickle.loads
+
 
 register = ForkingPickler.register
 
@@ -99,6 +101,7 @@ if sys.platform == 'win32':
 
     class DupHandle(object):
         '''Picklable wrapper for a handle.'''
+
         def __init__(self, handle, access, pid=None):
             if pid is None:
                 # We just duplicate the handle in the current process and
@@ -164,7 +167,7 @@ else:
                 )
             cmsg_level, cmsg_type, cmsg_data = ancdata[0]
             if (cmsg_level == socket.SOL_SOCKET and
-                    cmsg_type == socket.SCM_RIGHTS):
+                        cmsg_type == socket.SCM_RIGHTS):
                 if len(cmsg_data) % a.itemsize != 0:
                     raise ValueError
                 a.frombytes(cmsg_data)
@@ -189,6 +192,7 @@ else:
     def DupFd(fd):
         '''Return a wrapper for an fd.'''
         from ..forking import Popen
+
         return Popen.duplicate_for_child(fd)
 
 #
@@ -206,11 +210,15 @@ def _reduce_method(m):
 class _C:
     def f(self):
         pass
+
+
 register(type(_C().f), _reduce_method)
 
 
 def _reduce_method_descriptor(m):
     return getattr, (m.__objclass__, m.__name__)
+
+
 register(type(list.append), _reduce_method_descriptor)
 register(type(int.__add__), _reduce_method_descriptor)
 
@@ -221,6 +229,8 @@ def _reduce_partial(p):
 
 def _rebuild_partial(func, args, keywords):
     return functools.partial(func, *args, **keywords)
+
+
 register(functools.partial, _reduce_partial)
 
 #
@@ -231,10 +241,12 @@ if sys.platform == 'win32':
 
     def _reduce_socket(s):
         from ..resource_sharer import DupSocket
+
         return _rebuild_socket, (DupSocket(s),)
 
     def _rebuild_socket(ds):
         return ds.detach()
+
     register(socket.socket, _reduce_socket)
 
 else:
@@ -246,4 +258,5 @@ else:
     def _rebuild_socket(df, family, type, proto):  # noqa
         fd = df.detach()
         return socket.socket(family, type, proto, fileno=fd)
+
     register(socket.socket, _reduce_socket)

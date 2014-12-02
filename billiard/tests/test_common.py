@@ -2,17 +2,16 @@ from __future__ import absolute_import
 
 import os
 import signal
-
 from contextlib import contextmanager
-from mock import call, patch, Mock
 from time import time
+
+from mock import call, patch, Mock
 
 from billiard.common import (
     _shutdown_cleanup,
     reset_signals,
     restart_state,
 )
-
 from .utils import Case
 
 
@@ -23,6 +22,7 @@ def signo(name):
 @contextmanager
 def termsigs(default, full):
     from billiard import common
+
     prev_def, common.TERMSIGS_DEFAULT = common.TERMSIGS_DEFAULT, default
     prev_full, common.TERMSIGS_FULL = common.TERMSIGS_FULL, full
     try:
@@ -32,7 +32,6 @@ def termsigs(default, full):
 
 
 class test_reset_signals(Case):
-
     def test_shutdown_handler(self):
         with patch('sys.exit') as exit:
             _shutdown_cleanup(15, Mock())
@@ -80,7 +79,6 @@ class test_reset_signals(Case):
 
 
 class test_restart_state(Case):
-
     def test_raises(self):
         s = restart_state(100, 1)  # max 100 restarts in 1 second.
         s.R = 99

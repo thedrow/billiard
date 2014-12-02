@@ -20,6 +20,7 @@ from .util import Finalize, info, get_temp_dir
 from .forking import assert_spawning
 from .reduction import ForkingPickler
 
+
 __all__ = ['BufferWrapper']
 
 try:
@@ -61,6 +62,7 @@ else:
 
         def __init__(self, size, fileno=-1):
             from .forking import _forking_is_enabled
+
             self.size = size
             self.fileno = fileno
             if fileno == -1 and not _forking_is_enabled:
@@ -87,7 +89,6 @@ else:
 
 
 class Heap(object):
-
     _alignment = 8
 
     def __init__(self, size=mmap.PAGESIZE):
@@ -215,7 +216,7 @@ class Heap(object):
         # return a block of right size (possibly rounded up)
         assert 0 <= size < maxsize
         if os.getpid() != self._lastpid:
-            self.__init__()                     # reinitialize after fork
+            self.__init__()  # reinitialize after fork
         self._lock.acquire()
         self._free_pending_blocks()
         try:
@@ -230,13 +231,13 @@ class Heap(object):
         finally:
             self._lock.release()
 
+
 #
 # Class representing a chunk of an mmap -- can be inherited
 #
 
 
 class BufferWrapper(object):
-
     _heap = Heap()
 
     def __init__(self, size):

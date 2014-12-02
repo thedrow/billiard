@@ -25,6 +25,7 @@ import threading
 from multiprocessing import process as _mproc
 
 from .compat import bytes
+
 try:
     from _weakrefset import WeakSet
 except ImportError:
@@ -177,6 +178,7 @@ class Process(object):
     def _set_name(self, value):
         assert isinstance(name, string_t), 'name must be a string'
         self._name = value
+
     name = property(_get_name, _set_name)
 
     def _get_daemon(self):
@@ -185,6 +187,7 @@ class Process(object):
     def _set_daemon(self, daemonic):
         assert self._popen is None, 'process has already started'
         self._daemonic = daemonic
+
     daemon = property(_get_daemon, _set_daemon)
 
     def _get_authkey(self):
@@ -192,6 +195,7 @@ class Process(object):
 
     def _set_authkey(self, authkey):
         self._authkey = AuthenticationString(authkey)
+
     authkey = property(_get_authkey, _set_authkey)
 
     @property
@@ -248,10 +252,11 @@ class Process(object):
         return '<%s(%s, %s%s)>' % (type(self).__name__, self._name,
                                    status, self._daemonic and ' daemon' or '')
 
-    ##
+    # #
 
     def _bootstrap(self):
         from . import util
+
         global _current_process
 
         try:
@@ -306,6 +311,7 @@ class Process(object):
             exitcode = 1
             if not util.error('Process %s', self.name, exc_info=True):
                 import traceback
+
                 sys.stderr.write('Process %s:\n' % self.name)
                 traceback.print_exc()
         finally:
@@ -315,13 +321,13 @@ class Process(object):
             _maybe_flush(sys.stderr)
         return exitcode
 
+
 #
 # We subclass bytes to avoid accidental transmission of auth keys over network
 #
 
 
 class AuthenticationString(bytes):
-
     def __reduce__(self):
         from .forking import Popen
 
@@ -331,13 +337,13 @@ class AuthenticationString(bytes):
                 'disallowed for security reasons')
         return AuthenticationString, (bytes(self),)
 
+
 #
 # Create object representing the main process
 #
 
 
 class _MainProcess(Process):
-
     def __init__(self):
         self._identity = ()
         self._daemonic = False
@@ -351,6 +357,7 @@ class _MainProcess(Process):
         self._semprefix = 'mp-' + binascii.hexlify(
             os.urandom(4)).decode('ascii')
         self._unlinkfd = None
+
 
 _current_process = _MainProcess()
 del _MainProcess

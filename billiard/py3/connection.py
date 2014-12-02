@@ -26,6 +26,7 @@ from ..exceptions import AuthenticationError, BufferTooShort
 from ..five import monotonic
 from ..util import get_temp_dir, Finalize, sub_debug
 from ..reduction import ForkingPickler
+
 try:
     import _winapi
     from _winapi import (
@@ -87,7 +88,7 @@ def arbitrary_address(family):
         return tempfile.mktemp(prefix='listener-', dir=get_temp_dir())
     elif family == 'AF_PIPE':
         return tempfile.mktemp(prefix=r'\\.\pipe\pyc-%d-%d-' %
-                               (os.getpid(), next(_mmap_counter)))
+                                      (os.getpid(), next(_mmap_counter)))
     else:
         raise ValueError('unrecognized family')
 
@@ -119,6 +120,7 @@ def address_type(address):
         return 'AF_UNIX'
     else:
         raise ValueError('address type of %r unrecognized' % address)
+
 
 #
 # Connection classes
@@ -345,7 +347,7 @@ if _winapi:
 
         def _poll(self, timeout):
             if (self._got_empty_message or
-                    _winapi.PeekNamedPipe(self._handle)[0] != 0):
+                        _winapi.PeekNamedPipe(self._handle)[0] != 0):
                 return True
             return bool(wait([self], timeout))
 
@@ -374,11 +376,13 @@ class Connection(_ConnectionBase):
     if _winapi:
         def _close(self, _close=_multiprocessing.closesocket):
             _close(self._handle)
+
         _write = _multiprocessing.send
         _read = _multiprocessing.recv
     else:
         def _close(self, _close=os.close):  # noqa
             _close(self._handle)
+
         _write = os.write
         _read = os.read
 
@@ -455,6 +459,7 @@ class Listener(object):
     This is a wrapper for a bound socket which is 'listening' for
     connections, or for a Windows named pipe.
     '''
+
     def __init__(self, address=None, family=None, backlog=1, authkey=None):
         family = (family or (address and address_type(address))
                   or default_family)
@@ -598,6 +603,7 @@ class SocketListener(object):
     '''
     Representation of a socket which is bound to an address and listening
     '''
+
     def __init__(self, address, family, backlog=1):
         self._socket = socket.socket(getattr(socket, family))
         try:
@@ -661,6 +667,7 @@ if sys.platform == 'win32':
         '''
         Representation of a named pipe
         '''
+
         def __init__(self, address, backlog=None):
             self._address = address
             self._handle_queue = [self._new_handle(first=True)]
@@ -692,8 +699,8 @@ if sys.platform == 'win32':
             except OSError as e:
                 if e.winerror != _winapi.ERROR_NO_DATA:
                     raise
-                # ERROR_NO_DATA can occur if a client has already connected,
-                # written data and then disconnected -- see Issue 14725.
+                    # ERROR_NO_DATA can occur if a client has already connected,
+                    # written data and then disconnected -- see Issue 14725.
             else:
                 try:
                     _winapi.WaitForMultipleObjects([ov.event], False, INFINITE)
@@ -753,11 +760,12 @@ FAILURE = b'#FAILURE#'
 
 def deliver_challenge(connection, authkey):
     import hmac
+
     assert isinstance(authkey, bytes)
     message = os.urandom(MESSAGE_LENGTH)
     connection.send_bytes(CHALLENGE + message)
     digest = hmac.new(authkey, message).digest()
-    response = connection.recv_bytes(256)        # reject large message
+    response = connection.recv_bytes(256)  # reject large message
     if response == digest:
         connection.send_bytes(WELCOME)
     else:
@@ -767,15 +775,17 @@ def deliver_challenge(connection, authkey):
 
 def answer_challenge(connection, authkey):
     import hmac
+
     assert isinstance(authkey, bytes)
-    message = connection.recv_bytes(256)         # reject large message
+    message = connection.recv_bytes(256)  # reject large message
     assert message[:len(CHALLENGE)] == CHALLENGE, 'message = %r' % message
     message = message[len(CHALLENGE):]
     digest = hmac.new(authkey, message).digest()
     connection.send_bytes(digest)
-    response = connection.recv_bytes(256)        # reject large message
+    response = connection.recv_bytes(256)  # reject large message
     if response != WELCOME:
         raise AuthenticationError('digest sent was rejected')
+
 
 #
 # Support for using xmlrpclib for serialization
@@ -783,7 +793,6 @@ def answer_challenge(connection, authkey):
 
 
 class ConnectionWrapper(object):
-
     def __init__(self, conn, dumps, loads):
         self._conn = conn
         self._dumps = dumps
@@ -814,6 +823,7 @@ class XmlListener(Listener):
     def accept(self):
         global xmlrpclib
         import xmlrpc.client as xmlrpclib  # noqa
+
         obj = Listener.accept(self)
         return ConnectionWrapper(obj, _xml_dumps, _xml_loads)
 
@@ -821,6 +831,7 @@ class XmlListener(Listener):
 def XmlClient(*args, **kwds):
     global xmlrpclib
     import xmlrpc.client as xmlrpclib  # noqa
+
     return ConnectionWrapper(Client(*args, **kwds), _xml_dumps, _xml_loads)
 
 #
@@ -845,7 +856,7 @@ if sys.platform == 'win32':
             else:
                 raise RuntimeError('Should not get here')
             ready.append(L[res])
-            L = L[res+1:]
+            L = L[res + 1:]
             timeout = 0
         return ready
 

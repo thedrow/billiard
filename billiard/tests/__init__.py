@@ -9,6 +9,7 @@ def teardown():
     cancelled = set()
     try:
         import multiprocessing.util
+
         cancelled.add(multiprocessing.util._exit_function)
     except (AttributeError, ImportError):
         pass

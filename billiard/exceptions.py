@@ -8,16 +8,16 @@ try:
         AuthenticationError,
     )
 except ImportError:
-    class ProcessError(Exception):          # noqa
+    class ProcessError(Exception):  # noqa
         pass
 
-    class BufferTooShort(Exception):        # noqa
+    class BufferTooShort(Exception):  # noqa
         pass
 
-    class TimeoutError(Exception):          # noqa
+    class TimeoutError(Exception):  # noqa
         pass
 
-    class AuthenticationError(Exception):   # noqa
+    class AuthenticationError(Exception):  # noqa
         pass
 
 

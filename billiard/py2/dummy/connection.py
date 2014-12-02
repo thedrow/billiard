@@ -11,7 +11,7 @@
 # are met:
 #
 # 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
+# notice, this list of conditions and the following disclaimer.
 # 2. Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in the
 #    documentation and/or other materials provided with the distribution.
@@ -32,7 +32,7 @@
 # SUCH DAMAGE.
 #
 
-__all__ = [ 'Client', 'Listener', 'Pipe' ]
+__all__ = ['Client', 'Listener', 'Pipe']
 
 from Queue import Queue
 
@@ -41,7 +41,6 @@ families = [None]
 
 
 class Listener(object):
-
     def __init__(self, address=None, family=None, backlog=1):
         self._backlog_queue = Queue(backlog)
 
@@ -66,7 +65,6 @@ def Pipe(duplex=True):
 
 
 class Connection(object):
-
     def __init__(self, _in, _out):
         self._out = _out
         self._in = _in

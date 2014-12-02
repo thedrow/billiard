@@ -6,6 +6,7 @@ import warnings
 
 try:
     import unittest  # noqa
+
     unittest.skip
     from unittest.util import safe_repr, unorderable_list_difference
 except AttributeError:
@@ -20,7 +21,6 @@ from .compat import catch_warnings
 
 
 class _AssertRaisesBaseContext(object):
-
     def __init__(self, expected, test_case, callable_obj=None,
                  expected_regex=None):
         self.expected = expected
@@ -83,7 +83,6 @@ class _AssertWarnsContext(_AssertRaisesBaseContext):
 
 
 class Case(unittest.TestCase):
-
     def assertWarns(self, expected_warning):
         return _AssertWarnsContext(expected_warning, self, None)
 

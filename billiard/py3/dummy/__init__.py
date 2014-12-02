@@ -15,19 +15,19 @@ import threading
 import sys
 import weakref
 import array
-
-from .connection import Pipe
 from threading import Lock, RLock, Semaphore, BoundedSemaphore
 from threading import Event, Condition, Barrier
+
+from .connection import Pipe
 from queue import Queue
-from .import connection
+from . import connection
+
 
 #
 #
 #
 
 class DummyProcess(threading.Thread):
-
     def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
         threading.Thread.__init__(self, group, target, name, args, kwargs)
         self._pid = None
@@ -57,6 +57,7 @@ Process = DummyProcess
 current_process = threading.current_thread
 current_process()._children = weakref.WeakKeyDictionary()
 
+
 def active_children():
     children = current_process()._children
     for p in list(children):
@@ -64,8 +65,10 @@ def active_children():
             children.pop(p, None)
     return list(children)
 
+
 def freeze_support():
     pass
+
 
 #
 #
@@ -74,6 +77,7 @@ def freeze_support():
 class Namespace(object):
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
+
     def __repr__(self):
         items = list(self.__dict__.items())
         temp = []
@@ -83,32 +87,44 @@ class Namespace(object):
         temp.sort()
         return 'Namespace(%s)' % str.join(', ', temp)
 
+
 dict = dict
 list = list
 
+
 def Array(typecode, sequence, lock=True):
     return array.array(typecode, sequence)
+
 
 class Value(object):
     def __init__(self, typecode, value, lock=True):
         self._typecode = typecode
         self._value = value
+
     def _get(self):
         return self._value
+
     def _set(self, value):
         self._value = value
+
     value = property(_get, _set)
+
     def __repr__(self):
-        return '<%s(%r, %r)>'%(type(self).__name__,self._typecode,self._value)
+        return '<%s(%r, %r)>' % (type(self).__name__, self._typecode, self._value)
+
 
 def Manager():
     return sys.modules[__name__]
 
+
 def shutdown():
     pass
 
+
 def Pool(processes=None, initializer=None, initargs=()):
     from billiard.pool import ThreadPool
+
     return ThreadPool(processes, initializer, initargs)
+
 
 JoinableQueue = Queue

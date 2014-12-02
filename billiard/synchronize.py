@@ -18,7 +18,6 @@ import signal
 import sys
 import threading
 
-
 from ._ext import _billiard, ensure_SemLock
 from .five import range, monotonic
 from .process import current_process
@@ -45,7 +44,7 @@ except AttributeError:  # pragma: no cover
         # Py3.4+ implements sem_unlink and the semaphore must be named
         from _multiprocessing import sem_unlink  # noqa
     except ImportError:
-        sem_unlink = None   # noqa
+        sem_unlink = None  # noqa
 
 #
 # Base class for semaphores and mutexes; wraps `_billiard.SemLock`
@@ -64,6 +63,7 @@ class SemLock(object):
 
     def __init__(self, kind, value, maxvalue):
         from .forking import _forking_is_enabled
+
         unlink_immediately = _forking_is_enabled or sys.platform == 'win32'
         if sem_unlink:
             sl = self._semlock = _billiard.SemLock(
@@ -79,6 +79,7 @@ class SemLock(object):
             if sys.platform != 'win32':
                 def _after_fork(obj):
                     obj._semlock._after_fork()
+
                 register_after_fork(self, _after_fork)
 
             if _semname(self._semlock) is not None:
@@ -122,7 +123,6 @@ class SemLock(object):
 
 
 class Semaphore(SemLock):
-
     def __init__(self, value=1):
         SemLock.__init__(self, SEMAPHORE, value, SEM_VALUE_MAX)
 
@@ -138,7 +138,6 @@ class Semaphore(SemLock):
 
 
 class BoundedSemaphore(Semaphore):
-
     def __init__(self, value=1):
         SemLock.__init__(self, SEMAPHORE, value, value)
 
@@ -277,8 +276,8 @@ class Condition(object):
             assert res
 
         if self._sleeping_count.acquire(False):  # try grabbing a sleeper
-            self._wait_semaphore.release()       # wake up one sleeper
-            self._woken_count.acquire()          # wait for sleeper to wake
+            self._wait_semaphore.release()  # wake up one sleeper
+            self._woken_count.acquire()  # wait for sleeper to wake
 
             # rezero _wait_semaphore in case a timeout just happened
             self._wait_semaphore.acquire(False)
@@ -295,12 +294,12 @@ class Condition(object):
 
         sleepers = 0
         while self._sleeping_count.acquire(False):
-            self._wait_semaphore.release()        # wake up one sleeper
+            self._wait_semaphore.release()  # wake up one sleeper
             sleepers += 1
 
         if sleepers:
             for i in range(sleepers):
-                self._woken_count.acquire()       # wait for a sleeper to wake
+                self._woken_count.acquire()  # wait for a sleeper to wake
 
             # rezero wait_semaphore in case some timeouts just happened
             while self._wait_semaphore.acquire(False):
@@ -326,7 +325,6 @@ class Condition(object):
 
 
 class Event(object):
-
     def __init__(self):
         self._cond = Condition(Lock())
         self._flag = Semaphore(0)
@@ -397,6 +395,7 @@ if sys.platform != 'win32':
             if pid == 0:
                 try:
                     from setproctitle import setproctitle
+
                     setproctitle("[sem_cleanup for %r]" % cp.pid)
                 except:
                     pass

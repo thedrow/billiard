@@ -11,7 +11,6 @@ from __future__ import absolute_import
 import errno
 import functools
 import atexit
-
 from multiprocessing.util import (  # noqa
     _afterfork_registry,
     _afterfork_counter,
@@ -29,6 +28,7 @@ from multiprocessing.util import (  # noqa
 )
 
 from .compat import get_errno
+
 
 __all__ = [
     'sub_debug', 'debug', 'info', 'sub_warning', 'get_logger',
@@ -149,4 +149,5 @@ def _eintr_retry(func):
             except OSError as exc:
                 if get_errno(exc) != errno.EINTR:
                     raise
+
     return wrapped

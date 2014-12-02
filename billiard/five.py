@@ -12,33 +12,36 @@ from __future__ import absolute_import
 
 # ############# py3k #########################################################
 import sys
+
 PY3 = sys.version_info[0] == 3
 
 try:
-    reload = reload                         # noqa
-except NameError:                           # pragma: no cover
-    from imp import reload                  # noqa
+    reload = reload  # noqa
+except NameError:  # pragma: no cover
+    from imp import reload  # noqa
 
 try:
-    from UserList import UserList           # noqa
-except ImportError:                         # pragma: no cover
-    from collections import UserList        # noqa
+    from UserList import UserList  # noqa
+except ImportError:  # pragma: no cover
+    from collections import UserList  # noqa
 
 try:
-    from UserDict import UserDict           # noqa
-except ImportError:                         # pragma: no cover
-    from collections import UserDict        # noqa
+    from UserDict import UserDict  # noqa
+except ImportError:  # pragma: no cover
+    from collections import UserDict  # noqa
 
 # ############# time.monotonic ###############################################
 
 if sys.version_info < (3, 3):
 
     import platform
+
     SYSTEM = platform.system()
 
     if SYSTEM == 'Darwin':
         import ctypes
         from ctypes.util import find_library
+
         libSystem = ctypes.CDLL('libSystem.dylib')
         CoreServices = ctypes.CDLL(find_library('CoreServices'),
                                    use_errno=True)
@@ -132,26 +135,27 @@ else:
     import __builtin__ as builtins  # noqa
     from Queue import Queue, Empty, Full  # noqa
     from itertools import imap as map, izip_longest as zip_longest  # noqa
-    from StringIO import StringIO   # noqa
-    string = unicode                # noqa
-    string_t = basestring           # noqa
+    from StringIO import StringIO  # noqa
+
+    string = unicode  # noqa
+    string_t = basestring  # noqa
     text_t = unicode
-    long_t = long                   # noqa
+    long_t = long  # noqa
     range = xrange
     int_types = (int, long)
 
     open_fqdn = '__builtin__.open'
 
-    def items(d):                   # noqa
+    def items(d):  # noqa
         return d.iteritems()
 
-    def keys(d):                    # noqa
+    def keys(d):  # noqa
         return d.iterkeys()
 
-    def values(d):                  # noqa
+    def values(d):  # noqa
         return d.itervalues()
 
-    def nextfun(it):                # noqa
+    def nextfun(it):  # noqa
         return it.next
 
     def exec_(code, globs=None, locs=None):
@@ -164,11 +168,11 @@ else:
             del frame
         elif locs is None:
             locs = globs
-        exec("""exec code in globs, locs""")
+        exec ("""exec code in globs, locs""")
 
     exec_("""def reraise(tp, value, tb=None): raise tp, value, tb""")
 
-    BytesIO = WhateverIO = StringIO         # noqa
+    BytesIO = WhateverIO = StringIO  # noqa
 
 
 def with_metaclass(Type, skip_attrs=set(['__dict__', '__weakref__'])):

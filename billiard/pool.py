@@ -399,17 +399,17 @@ class WorkerMixin(object):
 
         # Make sure all exiting signals call finally: blocks.
         # This is important for the semaphore to be released.
-	if threading.current_thread().__class__.__name__ == '_MainThread':
-        	reset_signals(full=self.sigprotection)
+        if threading.current_thread().__class__.__name__ == '_MainThread':
+            reset_signals(full=self.sigprotection)
 
-        	# install signal handler for soft timeouts.
-        	if SIG_SOFT_TIMEOUT is not None:
-            		signal.signal(SIG_SOFT_TIMEOUT, soft_timeout_sighandler)
+            # install signal handler for soft timeouts.
+            if SIG_SOFT_TIMEOUT is not None:
+                signal.signal(SIG_SOFT_TIMEOUT, soft_timeout_sighandler)
 
-        	try:
-            		signal.signal(signal.SIGINT, signal.SIG_IGN)
-        	except AttributeError:
-            		pass
+            try:
+                signal.signal(signal.SIGINT, signal.SIG_IGN)
+            except AttributeError:
+                pass
 
     def _make_recv_method(self, conn):
         get = conn.get
@@ -471,7 +471,7 @@ class Worker(WorkerMixin, Process):
 class ThreadWorker(WorkerMixin, DummyProcess):
     @property
     def pid(self):
-    	return self.ident
+        return self.ident
 
 
 #
@@ -1508,11 +1508,6 @@ class Pool(object):
             if not x:
                 return
             yield (func, x)
-
-    def __reduce__(self):
-        raise NotImplementedError(
-            'pool objects cannot be passed between processes or pickled',
-        )
 
     def close(self):
         debug('closing pool')

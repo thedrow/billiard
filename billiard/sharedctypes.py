@@ -17,14 +17,15 @@ from .forking import assert_spawning
 from .reduction import ForkingPickler
 from .synchronize import RLock
 
+
 __all__ = ['RawValue', 'RawArray', 'Value', 'Array', 'copy', 'synchronized']
 
 typecode_to_type = {
-    'c': ctypes.c_char,  'u': ctypes.c_wchar,
-    'b': ctypes.c_byte,  'B': ctypes.c_ubyte,
+    'c': ctypes.c_char, 'u': ctypes.c_wchar,
+    'b': ctypes.c_byte, 'B': ctypes.c_ubyte,
     'h': ctypes.c_short, 'H': ctypes.c_ushort,
-    'i': ctypes.c_int,   'I': ctypes.c_uint,
-    'l': ctypes.c_long,  'L': ctypes.c_ulong,
+    'i': ctypes.c_int, 'I': ctypes.c_uint,
+    'l': ctypes.c_long, 'L': ctypes.c_ulong,
     'f': ctypes.c_float, 'd': ctypes.c_double
 }
 
@@ -125,6 +126,7 @@ def synchronized(obj, lock=None):
             scls = class_cache[cls] = type(classname, (SynchronizedBase,), d)
         return scls(obj, lock)
 
+
 #
 # Functions for pickling/unpickling
 #
@@ -146,6 +148,7 @@ def rebuild_ctype(type_, wrapper, length):
     obj._wrapper = wrapper
     return obj
 
+
 #
 # Function to create properties
 #
@@ -156,9 +159,10 @@ def make_property(name):
         return prop_cache[name]
     except KeyError:
         d = {}
-        exec(template % ((name, ) * 7), d)
+        exec (template % ((name, ) * 7), d)
         prop_cache[name] = d[name]
         return d[name]
+
 
 template = '''
 def get%s(self):
@@ -185,7 +189,6 @@ class_cache = weakref.WeakKeyDictionary()
 
 
 class SynchronizedBase(object):
-
     def __init__(self, obj, lock=None):
         self._obj = obj
         self._lock = lock or RLock()
@@ -211,7 +214,6 @@ class Synchronized(SynchronizedBase):
 
 
 class SynchronizedArray(SynchronizedBase):
-
     def __len__(self):
         return len(self._obj)
 

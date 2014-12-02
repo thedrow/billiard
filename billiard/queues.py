@@ -31,6 +31,7 @@ class Queue(object):
     '''
     Queue type using a pipe, buffer and thread
     '''
+
     def __init__(self, maxsize=0):
         if maxsize <= 0:
             maxsize = _billiard.SemLock.SEM_VALUE_MAX
@@ -250,9 +251,11 @@ class Queue(object):
                     if not error('error in queue thread: %r', exc,
                                  exc_info=True):
                         import traceback
+
                         traceback.print_exc()
             except Exception:
                 pass
+
 
 _sentinel = object()
 
@@ -340,11 +343,13 @@ class _SimpleQueue(object):
             def get():
                 with rlock:
                     return recv()
+
             self.get = get
 
             def get_payload():
                 with rlock:
                     return recv_payload()
+
             self.get_payload = get_payload
         else:
             self.get = recv
@@ -360,11 +365,11 @@ class _SimpleQueue(object):
             def put(obj):
                 with wlock:
                     return send(obj)
+
             self.put = put
 
 
 class SimpleQueue(_SimpleQueue):
-
     def __init__(self):
         self._reader, self._writer = Pipe(duplex=False)
         self._rlock = Lock()
